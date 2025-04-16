@@ -51,7 +51,7 @@ const columns = [
   },
   {
     header: "Experience",
-    accessor: "experience",
+    accessor: (therapist: Therapist) => therapist.experience,
   },
   {
     header: "Status",
@@ -71,7 +71,7 @@ const columns = [
   },
   {
     header: "Last Active",
-    accessor: "lastActive",
+    accessor: (therapist: Therapist) => therapist.lastActive,
   },
 ];
 

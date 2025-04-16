@@ -1,7 +1,7 @@
 import PageBreadcrumb from "../../../components/common/PageBreadCrumb";
 import PageMeta from "../../../components/common/PageMeta";
 import DataTable from "../../../components/ui/table/DataTable";
-import { DollarLineIcon } from "../../../icons";
+import { ReactNode } from "react";
 
 interface ManualAdjustment {
   id: number;
@@ -37,11 +37,11 @@ const adjustments: ManualAdjustment[] = [
 const columns = [
   {
     header: "Therapist",
-    accessor: "therapistName",
+    accessor: (adjustment: ManualAdjustment): ReactNode => adjustment.therapistName,
   },
   {
     header: "Amount",
-    accessor: (adjustment: ManualAdjustment) => (
+    accessor: (adjustment: ManualAdjustment): ReactNode => (
       <div
         className={`font-medium ${
           adjustment.amount >= 0
@@ -55,7 +55,7 @@ const columns = [
   },
   {
     header: "Type",
-    accessor: (adjustment: ManualAdjustment) => (
+    accessor: (adjustment: ManualAdjustment): ReactNode => (
       <span
         className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
           adjustment.type === "bonus"
@@ -71,15 +71,15 @@ const columns = [
   },
   {
     header: "Reason",
-    accessor: "reason",
+    accessor: (adjustment: ManualAdjustment): ReactNode => adjustment.reason,
   },
   {
     header: "Date",
-    accessor: "date",
+    accessor: (adjustment: ManualAdjustment): ReactNode => adjustment.date,
   },
   {
     header: "Status",
-    accessor: (adjustment: ManualAdjustment) => (
+    accessor: (adjustment: ManualAdjustment): ReactNode => (
       <span
         className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
           adjustment.status === "approved"

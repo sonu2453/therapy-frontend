@@ -1,9 +1,8 @@
 import { ReactNode } from "react";
 
-interface Column<T> {
+export interface Column<T> {
   header: string;
   accessor: keyof T | ((item: T) => ReactNode);
-  className?: string;
 }
 
 interface DataTableProps<T> {
@@ -22,52 +21,51 @@ export default function DataTable<T>({
   onRowClick,
 }: DataTableProps<T>) {
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white px-5 py-7 dark:border-gray-800 dark:bg-white/[0.03] xl:px-10 xl:py-12">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
       {(title || description) && (
-        <div className="mb-6">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           {title && (
-            <h3 className="mb-2 font-semibold text-gray-800 text-theme-xl dark:text-white/90 sm:text-2xl">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white">
               {title}
             </h3>
           )}
           {description && (
-            <p className="text-sm text-gray-500 dark:text-gray-400 sm:text-base">
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               {description}
             </p>
           )}
         </div>
       )}
       <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-gray-200 dark:border-gray-800">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead className="bg-gray-50 dark:bg-gray-900">
+            <tr>
               {columns.map((column, index) => (
                 <th
                   key={index}
-                  className={`px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400 ${
-                    column.className || ""
-                  }`}
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                 >
                   {column.header}
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody>
+          <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
             {data.map((item, rowIndex) => (
               <tr
                 key={rowIndex}
                 onClick={() => onRowClick?.(item)}
-                className={`border-b border-gray-200 dark:border-gray-800 ${
-                  onRowClick ? "cursor-pointer hover:bg-gray-50 dark:hover:bg-white/[0.02]" : ""
+                className={`${
+                  onRowClick
+                    ? "cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-900"
+                    : ""
                 }`}
               >
                 {columns.map((column, colIndex) => (
                   <td
                     key={colIndex}
-                    className={`px-4 py-3 text-sm text-gray-700 dark:text-gray-400 ${
-                      column.className || ""
-                    }`}
+                    className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white"
                   >
                     {typeof column.accessor === "function"
                       ? column.accessor(item)

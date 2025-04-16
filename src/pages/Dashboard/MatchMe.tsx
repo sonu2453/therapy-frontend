@@ -2,7 +2,7 @@ import { useState } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
 import { ListIcon, GridIcon } from "../../icons";
-import { therapist } from "../../icons";
+// import { therapist } from "../../icons";
 
 interface Therapist {
   id: number;

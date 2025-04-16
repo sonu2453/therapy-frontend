@@ -69,11 +69,11 @@ const columns = [
   },
   {
     header: "Date",
-    accessor: "date",
+    accessor: (payment: Payment) => payment.date,
   },
   {
     header: "Payment Method",
-    accessor: "paymentMethod",
+    accessor: (payment: Payment) => payment.paymentMethod,
   },
   {
     header: "Status",
