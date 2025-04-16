@@ -3,16 +3,21 @@ import { Link, useLocation } from "react-router";
 
 // Assume these icons are imported from an icon library
 import {
+  AlertIcon,
   BoxCubeIcon,
   CalenderIcon,
+  ChatIcon,
   ChevronDownIcon,
+  DollarLineIcon,
   GridIcon,
   HorizontaLDots,
   ListIcon,
   PageIcon,
+  PencilIcon,
   PieChartIcon,
   PlugInIcon,
   TableIcon,
+  TherapistIcon,
   UserCircleIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
@@ -29,67 +34,158 @@ const navItems: NavItem[] = [
   {
     icon: <GridIcon />,
     name: "Dashboard",
-    subItems: [{ name: "Ecommerce", path: "/", pro: false }],
+    subItems: [{ name: "Ecommerce", path: "/dashboard", pro: false }],
   },
   {
     icon: <CalenderIcon />,
     name: "Calendar",
-    path: "/calendar",
+    path: "/dashboard/calendar",
   },
   {
+    name: "Users",
+    path: "/dashboard/users",
     icon: <UserCircleIcon />,
-    name: "User Profile",
-    path: "/profile",
-  },
-  {
-    name: "Forms",
-    icon: <ListIcon />,
-    subItems: [{ name: "Form Elements", path: "/form-elements", pro: false }],
-  },
-  {
-    name: "Tables",
-    icon: <TableIcon />,
-    subItems: [{ name: "Basic Tables", path: "/basic-tables", pro: false }],
-  },
-  {
-    name: "Pages",
-    icon: <PageIcon />,
     subItems: [
-      { name: "Blank Page", path: "/blank", pro: false },
-      { name: "404 Error", path: "/error-404", pro: false },
+      { name: "All Users", path: "/dashboard/users" },
+      { name: "Therapists", path: "/dashboard/therapists" },
+      { name: "Support Staff", path: "/dashboard/support-staff" },
     ],
   },
+  {
+    name: "Earnings & Payouts",
+    path: "/dashboard/earnings",
+    icon: <DollarLineIcon />,
+    subItems: [
+      { name: "Therapist Earnings", path: "/dashboard/earnings/therapists" },
+      { name: "Manual Adjustments", path: "/dashboard/earnings/manual" },
+    ],
+  },
+  {
+    name: "Subscriptions",
+    path: "/dashboard/subscriptions",
+    icon: <DollarLineIcon />,
+    subItems: [
+      { name: "All Plans", path: "/dashboard/subscriptions/plans" },
+      { name: "Payment History", path: "/dashboard/subscriptions/payments" },
+    ],
+  },
+  // {
+  //   name: "Notifications",
+  //   path: "/dashboard/notifications",
+  //   icon: <AlertIcon />,
+  //   subItems: [
+  //     { name: "Reminder Logs", path: "/dashboard/notifications/logs" },
+  //   ],
+  // },
+  {
+    name: "Refund Requests",
+    path: "/dashboard/refunds",
+    icon: <DollarLineIcon />,
+  },
+  {
+    name: "Reports",
+    path: "/dashboard/reports",
+    icon: <PieChartIcon />,
+    subItems: [
+      { name: "Booking Stats", path: "/dashboard/reports/bookings" },
+      { name: "Therapist Activity", path: "/dashboard/reports/therapists" },
+    ],
+  },
+  //individuals user
+  {
+    name: "Match Me",
+    path: "/dashboard/match-me",
+    icon: <UserCircleIcon />,
+  },
+  {
+    name: "My Sessions",
+    path: "/dashboard/sessions",
+    icon: <CalenderIcon />,
+    subItems: [
+      { name: "Upcoming", path: "/dashboard/sessions/upcoming" },
+      { name: "History", path: "/dashboard/sessions/history" },
+    ],
+  },
+  {
+    name: "Chat",
+    path: "/dashboard/chat",
+    icon: <ChatIcon />,
+  },
+  {
+    name: "Subscription (individuals)",
+    path: "/dashboard/subscription",
+    icon: <DollarLineIcon />,
+    subItems: [
+      { name: "Current Plan", path: "/dashboard/subscription/plan" },
+      { name: "Billing History", path: "/dashboard/subscription/history" },
+    ],
+  },
+  {
+    name: "Notifications",
+    path: "/dashboard/notifications",
+    icon: <PencilIcon />,
+  },
+  {
+    name: "Help & Support",
+    path: "/dashboard/help",
+    icon: <PencilIcon />,
+  },
+  // the
+  {
+    name: "Settings",
+    path: "/dashboard/settings",
+    icon: <PencilIcon />,
+  },
+  
+  // {
+  //   name: "Forms",
+  //   icon: <ListIcon />,
+  //   subItems: [{ name: "Form Elements", path: "/dashboard/form-elements", pro: false }],
+  // },
+  // {
+  //   name: "Tables",
+  //   icon: <TableIcon />,
+  //   subItems: [{ name: "Basic Tables", path: "/dashboard/basic-tables", pro: false }],
+  // },
+  // {
+  //   name: "Pages",
+  //   icon: <PageIcon />,
+  //   subItems: [
+  //     { name: "Blank Page", path: "/dashboard/blank", pro: false },
+  //     { name: "404 Error", path: "/error-404", pro: false },
+  //   ],
+  // },
 ];
 
 const othersItems: NavItem[] = [
-  {
-    icon: <PieChartIcon />,
-    name: "Charts",
-    subItems: [
-      { name: "Line Chart", path: "/line-chart", pro: false },
-      { name: "Bar Chart", path: "/bar-chart", pro: false },
-    ],
-  },
-  {
-    icon: <BoxCubeIcon />,
-    name: "UI Elements",
-    subItems: [
-      { name: "Alerts", path: "/alerts", pro: false },
-      { name: "Avatar", path: "/avatars", pro: false },
-      { name: "Badge", path: "/badge", pro: false },
-      { name: "Buttons", path: "/buttons", pro: false },
-      { name: "Images", path: "/images", pro: false },
-      { name: "Videos", path: "/videos", pro: false },
-    ],
-  },
-  {
-    icon: <PlugInIcon />,
-    name: "Authentication",
-    subItems: [
-      { name: "Sign In", path: "/signin", pro: false },
-      { name: "Sign Up", path: "/signup", pro: false },
-    ],
-  },
+  // {
+  //   icon: <PieChartIcon />,
+  //   name: "Charts",
+  //   subItems: [
+  //     { name: "Line Chart", path: "/dashboard/line-chart", pro: false },
+  //     { name: "Bar Chart", path: "/dashboard/bar-chart", pro: false },
+  //   ],
+  // },
+  // {
+  //   icon: <BoxCubeIcon />,
+  //   name: "UI Elements",
+  //   subItems: [
+  //     { name: "Alerts", path: "/dashboard/alerts", pro: false },
+  //     { name: "Avatar", path: "/dashboard/avatars", pro: false },
+  //     { name: "Badge", path: "/dashboard/badge", pro: false },
+  //     { name: "Buttons", path: "/dashboard/buttons", pro: false },
+  //     { name: "Images", path: "/dashboard/images", pro: false },
+  //     { name: "Videos", path: "/dashboard/videos", pro: false },
+  //   ],
+  // },
+  // {
+  //   icon: <PlugInIcon />,
+  //   name: "Authentication",
+  //   subItems: [
+  //     { name: "Sign In", path: "/signin", pro: false },
+  //     { name: "Sign Up", path: "/signup", pro: false },
+  //   ],
+  // },
 ];
 
 const AppSidebar: React.FC = () => {
@@ -303,7 +399,7 @@ const AppSidebar: React.FC = () => {
           !isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
         }`}
       >
-        <Link to="/">
+        {/* <Link to="/">
           {isExpanded || isHovered || isMobileOpen ? (
             <>
               <img
@@ -329,7 +425,7 @@ const AppSidebar: React.FC = () => {
               height={32}
             />
           )}
-        </Link>
+        </Link> */}
       </div>
       <div className="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
         <nav className="mb-6">
@@ -343,7 +439,7 @@ const AppSidebar: React.FC = () => {
                 }`}
               >
                 {isExpanded || isHovered || isMobileOpen ? (
-                  "Menu"
+                  ""
                 ) : (
                   <HorizontaLDots className="size-6" />
                 )}
@@ -368,7 +464,7 @@ const AppSidebar: React.FC = () => {
             </div>
           </div>
         </nav>
-        {isExpanded || isHovered || isMobileOpen ? <SidebarWidget /> : null}
+        {/* {isExpanded || isHovered || isMobileOpen ? <SidebarWidget /> : null} */}
       </div>
     </aside>
   );

@@ -18,6 +18,16 @@ import Blank from "./pages/Blank";
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
+import HomePage from "./pages/Public/HomePage";
+import Users from "./pages/Dashboard/Users";
+import Therapists from "./pages/Dashboard/Therapists";
+import TherapistEarnings from "./pages/Dashboard/Earnings/Therapists";
+import ManualAdjustments from "./pages/Dashboard/Earnings/Manual";
+import AllPlans from "./pages/Dashboard/Subscriptions/AllPlans";
+import PaymentHistory from "./pages/Dashboard/Subscriptions/PaymentHistory";
+import RefundRequests from "./pages/Dashboard/Subscriptions/RefundRequests";
+import MatchMe from "./pages/Dashboard/MatchMe";
+import Chat from "./pages/Dashboard/Chat";
 
 export default function App() {
   return (
@@ -25,37 +35,56 @@ export default function App() {
       <Router>
         <ScrollToTop />
         <Routes>
-          {/* Dashboard Layout */}
-          <Route element={<AppLayout />}>
-            <Route index path="/" element={<Home />} />
-
-            {/* Others Page */}
-            <Route path="/profile" element={<UserProfiles />} />
-            <Route path="/calendar" element={<Calendar />} />
-            <Route path="/blank" element={<Blank />} />
-
-            {/* Forms */}
-            <Route path="/form-elements" element={<FormElements />} />
-
-            {/* Tables */}
-            <Route path="/basic-tables" element={<BasicTables />} />
-
-            {/* Ui Elements */}
-            <Route path="/alerts" element={<Alerts />} />
-            <Route path="/avatars" element={<Avatars />} />
-            <Route path="/badge" element={<Badges />} />
-            <Route path="/buttons" element={<Buttons />} />
-            <Route path="/images" element={<Images />} />
-            <Route path="/videos" element={<Videos />} />
-
-            {/* Charts */}
-            <Route path="/line-chart" element={<LineChart />} />
-            <Route path="/bar-chart" element={<BarChart />} />
-          </Route>
-
-          {/* Auth Layout */}
+          {/* Public Routes */}
+          <Route path="/" element={<HomePage />} />
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
+
+          {/* Dashboard Layout - All admin routes under /dashboard */}
+          <Route path="/dashboard" element={<AppLayout />}>
+            <Route index element={<Home />} />
+
+            {/* Others Page */}
+            <Route path="profile" element={<UserProfiles />} />
+            <Route path="users" element={<Users />} />
+            <Route path="therapists" element={<Therapists />} />
+            <Route path="match-me" element={<MatchMe />} />
+            <Route path="chat" element={<Chat />} />
+            <Route path="calendar" element={<Calendar />} />
+          
+            {/* Earnings Routes */}
+            <Route path="earnings">
+              <Route path="therapists" element={<TherapistEarnings />} />
+              <Route path="manual" element={<ManualAdjustments />} />
+            </Route>
+
+            {/* Subscription Routes */}
+            <Route path="subscriptions">
+              <Route path="plans" element={<AllPlans />} />
+              <Route path="payments" element={<PaymentHistory />} />
+              <Route path="refunds" element={<RefundRequests />} />
+            </Route>
+
+            <Route path="blank" element={<Blank />} />
+
+            {/* Forms */}
+            <Route path="form-elements" element={<FormElements />} />
+
+            {/* Tables */}
+            <Route path="basic-tables" element={<BasicTables />} />
+
+            {/* Ui Elements */}
+            <Route path="alerts" element={<Alerts />} />
+            <Route path="avatars" element={<Avatars />} />
+            <Route path="badge" element={<Badges />} />
+            <Route path="buttons" element={<Buttons />} />
+            <Route path="images" element={<Images />} />
+            <Route path="videos" element={<Videos />} />
+
+            {/* Charts */}
+            <Route path="line-chart" element={<LineChart />} />
+            <Route path="bar-chart" element={<BarChart />} />
+          </Route>
 
           {/* Fallback Route */}
           <Route path="*" element={<NotFound />} />
