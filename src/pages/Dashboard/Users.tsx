@@ -2,6 +2,7 @@ import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
 import DataTable from "../../components/ui/table/DataTable";
 import { UserCircleIcon } from "../../icons";
+import { ReactNode } from "react";
 
 interface User {
   id: number;
@@ -35,7 +36,7 @@ const users: User[] = [
 const columns = [
   {
     header: "User",
-    accessor: (user: User) => (
+    accessor: (user: User): ReactNode => (
       <div className="flex items-center gap-3">
         <UserCircleIcon className="size-8" />
         <div>
@@ -51,11 +52,11 @@ const columns = [
   },
   {
     header: "Role",
-    accessor: "role",
+    accessor: (user: User): ReactNode => user.role,
   },
   {
     header: "Status",
-    accessor: (user: User) => (
+    accessor: (user: User): ReactNode => (
       <span
         className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
           user.status === "active"
@@ -69,7 +70,7 @@ const columns = [
   },
   {
     header: "Last Login",
-    accessor: "lastLogin",
+    accessor: (user: User): ReactNode => user.lastLogin,
   },
 ];
 
