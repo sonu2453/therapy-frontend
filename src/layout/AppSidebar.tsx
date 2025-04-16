@@ -3,25 +3,19 @@ import { Link, useLocation } from "react-router";
 
 // Assume these icons are imported from an icon library
 import {
-  AlertIcon,
-  BoxCubeIcon,
+
   CalenderIcon,
   ChatIcon,
   ChevronDownIcon,
   DollarLineIcon,
   GridIcon,
   HorizontaLDots,
-  ListIcon,
-  PageIcon,
   PencilIcon,
   PieChartIcon,
-  PlugInIcon,
-  TableIcon,
-  TherapistIcon,
   UserCircleIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
-import SidebarWidget from "./SidebarWidget";
+// import SidebarWidget from "./SidebarWidget";
 
 type NavItem = {
   name: string;

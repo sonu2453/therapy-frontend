@@ -1,6 +1,6 @@
 import PageBreadcrumb from "../../../components/common/PageBreadCrumb";
 import PageMeta from "../../../components/common/PageMeta";
-import DataTable from "../../../components/ui/table/DataTable";
+import DataTable, { Column } from "../../../components/ui/table/DataTable";
 import { DollarLineIcon } from "../../../icons";
 
 interface RefundRequest {
@@ -46,7 +46,7 @@ const refundRequests: RefundRequest[] = [
   },
 ];
 
-const columns = [
+const columns : Column<RefundRequest>[] = [
   {
     header: "Customer",
     accessor: (request: RefundRequest) => (

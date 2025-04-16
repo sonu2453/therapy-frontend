@@ -1,6 +1,6 @@
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
-import DataTable from "../../components/ui/table/DataTable";
+import DataTable, { Column } from "../../components/ui/table/DataTable";
 import { UserCircleIcon } from "../../icons";
 
 interface User {
@@ -32,7 +32,7 @@ const users: User[] = [
   // Add more users as needed
 ];
 
-const columns = [
+const columns : Column<User>[] = [
   {
     header: "User",
     accessor: (user: User) => (
