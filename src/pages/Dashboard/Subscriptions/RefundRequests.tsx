@@ -1,7 +1,7 @@
 import PageBreadcrumb from "../../../components/common/PageBreadCrumb";
 import PageMeta from "../../../components/common/PageMeta";
 import DataTable from "../../../components/ui/table/DataTable";
-import { ReactNode } from "react";
+import { DollarLineIcon } from "../../../icons";
 
 interface RefundRequest {
   id: number;
@@ -18,8 +18,8 @@ const refundRequests: RefundRequest[] = [
   {
     id: 1,
     customerName: "John Doe",
-    planName: "Premium Plan",
-    amount: 99.99,
+    planName: "Professional Plan",
+    amount: 59.99,
     requestDate: "2024-03-15",
     status: "pending",
     reason: "Service not as expected",
@@ -28,16 +28,16 @@ const refundRequests: RefundRequest[] = [
     id: 2,
     customerName: "Jane Smith",
     planName: "Basic Plan",
-    amount: 49.99,
+    amount: 29.99,
     requestDate: "2024-03-14",
     status: "approved",
-    reason: "Changed mind",
+    reason: "Technical issues",
     processedDate: "2024-03-15",
   },
   {
     id: 3,
-    customerName: "Bob Johnson",
-    planName: "Premium Plan",
+    customerName: "Mike Johnson",
+    planName: "Enterprise Plan",
     amount: 99.99,
     requestDate: "2024-03-13",
     status: "rejected",
@@ -49,43 +49,45 @@ const refundRequests: RefundRequest[] = [
 const columns = [
   {
     header: "Customer",
-    accessor: (request: RefundRequest): ReactNode => (
-      <div>
-        <div className="font-medium text-gray-900 dark:text-white">
-          {request.customerName}
-        </div>
-        <div className="text-sm text-gray-500 dark:text-gray-400">
-          {request.planName}
+    accessor: (request: RefundRequest) => (
+      <div className="flex items-center gap-3">
+        <div>
+          <div className="font-medium text-gray-900 dark:text-white">
+            {request.customerName}
+          </div>
+          <div className="text-sm text-gray-500 dark:text-gray-400">
+            {request.planName}
+          </div>
         </div>
       </div>
     ),
   },
   {
     header: "Amount",
-    accessor: (request: RefundRequest): ReactNode => (
-      <span className="font-medium">
+    accessor: (request: RefundRequest) => (
+      <div className="font-medium text-gray-900 dark:text-white">
         ${request.amount.toFixed(2)}
-      </span>
+      </div>
     ),
   },
   {
     header: "Request Date",
-    accessor: (request: RefundRequest): ReactNode => request.requestDate,
+    accessor: "requestDate",
   },
   {
     header: "Reason",
-    accessor: (request: RefundRequest): ReactNode => request.reason,
+    accessor: "reason",
   },
   {
     header: "Status",
-    accessor: (request: RefundRequest): ReactNode => (
+    accessor: (request: RefundRequest) => (
       <span
         className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-          request.status === "pending"
-            ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
-            : request.status === "approved"
+          request.status === "approved"
             ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
-            : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
+            : request.status === "rejected"
+            ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
+            : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
         }`}
       >
         {request.status}
@@ -95,42 +97,45 @@ const columns = [
 ];
 
 export default function RefundRequests() {
-  const pendingRequests = refundRequests.filter(
-    (request) => request.status === "pending"
-  ).length;
-  const totalRefundAmount = refundRequests.reduce(
-    (sum, request) => sum + request.amount,
-    0
-  );
+  const pendingRequests = refundRequests.filter(r => r.status === "pending");
+  const totalRefundAmount = refundRequests.reduce((sum, r) => sum + r.amount, 0);
 
   return (
     <>
       <PageMeta
         title="Refund Requests | Dashboard"
-        description="Manage refund requests"
+        description="Manage subscription refund requests"
       />
       <PageBreadcrumb pageTitle="Refund Requests" />
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 mb-6">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-            Pending Requests
-          </h3>
-          <p className="mt-2 text-3xl font-bold text-gray-900 dark:text-white">
-            {pendingRequests}
-          </p>
+      
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
+          <div className="flex items-center gap-4">
+            <DollarLineIcon className="size-8 text-primary-600 dark:text-primary-400" />
+            <div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Pending Requests</p>
+              <p className="text-2xl font-semibold text-gray-900 dark:text-white">
+                {pendingRequests.length}
+              </p>
+            </div>
+          </div>
         </div>
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-            Total Refund Amount
-          </h3>
-          <p className="mt-2 text-3xl font-bold text-gray-900 dark:text-white">
-            ${totalRefundAmount.toFixed(2)}
-          </p>
+        <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
+          <div className="flex items-center gap-4">
+            <DollarLineIcon className="size-8 text-primary-600 dark:text-primary-400" />
+            <div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Total Refund Amount</p>
+              <p className="text-2xl font-semibold text-gray-900 dark:text-white">
+                ${totalRefundAmount.toFixed(2)}
+              </p>
+            </div>
+          </div>
         </div>
       </div>
+
       <DataTable
         title="Refund Requests"
-        description="Manage and process refund requests"
+        description="View and manage subscription refund requests"
         columns={columns}
         data={refundRequests}
         onRowClick={(request) => {
