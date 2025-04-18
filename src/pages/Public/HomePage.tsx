@@ -17,7 +17,7 @@ export default function HomePage() {
             Please sign in to access the dashboard
           </p>
           <Link
-            to="/signin"
+            to="/dashboard"
             className="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
           >
             Sign In
