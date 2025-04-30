@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
 import { UserIcon, ChatIcon, HorizontaLDots, PaperPlaneIcon } from "../../icons";
+import axios from "axios";
+import echo from "../../echo"; // Import the echo instance
 
 interface Message {
   id: number;
@@ -19,103 +21,149 @@ interface Conversation {
   timestamp: string;
   unreadCount: number;
   messages: Message[];
+  isOnline?: boolean; // <-- NEW
+
 }
 
-const sampleConversations: Conversation[] = [
-  {
-    id: 1,
-    therapistName: "Dr. Sarah Johnson",
-    therapistImage: "https://randomuser.me/api/portraits/women/1.jpg",
-    lastMessage: "I understand how you're feeling. Let's discuss this in our next session.",
-    timestamp: "10:30 AM",
-    unreadCount: 2,
-    messages: [
-      {
-        id: 1,
-        sender: "therapist",
-        content: "Hello! How are you feeling today?",
-        timestamp: "10:00 AM",
-        status: "read"
-      },
-      {
-        id: 2,
-        sender: "me",
-        content: "I'm feeling a bit anxious about my upcoming presentation.",
-        timestamp: "10:15 AM",
-        status: "delivered"
-      },
-      {
-        id: 3,
-        sender: "therapist",
-        content: "I understand how you're feeling. Let's discuss this in our next session.",
-        timestamp: "10:30 AM",
-        status: "read"
-      }
-    ]
-  },
-  {
-    id: 2,
-    therapistName: "Dr. Michael Chen",
-    therapistImage: "https://randomuser.me/api/portraits/men/1.jpg",
-    lastMessage: "Great progress! Keep up the mindfulness exercises.",
-    timestamp: "Yesterday",
-    unreadCount: 0,
-    messages: [
-      {
-        id: 1,
-        sender: "therapist",
-        content: "How did the mindfulness exercises go?",
-        timestamp: "Yesterday",
-        status: "read"
-      },
-      {
-        id: 2,
-        sender: "me",
-        content: "They were helpful! I felt more relaxed after doing them.",
-        timestamp: "Yesterday",
-        status: "read"
-      },
-      {
-        id: 3,
-        sender: "therapist",
-        content: "Great progress! Keep up the mindfulness exercises.",
-        timestamp: "Yesterday",
-        status: "read"
-      }
-    ]
-  }
-];
-
 export default function Chat() {
+  const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [newMessage, setNewMessage] = useState("");
-
-  const handleSendMessage = () => {
-    if (newMessage.trim() && selectedConversation) {
-      const newMessageObj: Message = {
-        id: selectedConversation.messages.length + 1,
-        sender: "me",
-        content: newMessage,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        status: "sent"
-      };
-
-      const updatedConversation: Conversation = {
-        ...selectedConversation,
-        messages: [...selectedConversation.messages, newMessageObj]
-      };
-
-      setSelectedConversation(updatedConversation);
-      setNewMessage("");
-    }
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const getApiBaseUrl = () => {
+    // Access the variable using import.meta.env
+    return import.meta.env.VITE_API_URL || "http://localhost:8000";
   };
+  // Fetch conversations when component mounts
+  useEffect(() => {
+    const fetchConversations = async () => {
+      try {
+        const response = await axios.get(`${getApiBaseUrl()}/api/users`);
+        const users = response.data?.data;
+// console.log(users, "usersusers")
+        // Assuming messages will be loaded later per conversation
+        const conversationData = users.map((user: any) => ({
+          id: user.id,
+          therapistName: user.name,
+          therapistImage: user.avatar,
+          lastMessage: "", 
+          timestamp: user.is_online ? "Online" : "Offline", // <-- show based on user status
+          unreadCount: 0,
+          messages: [],
+          isOnline: user.is_online, // <-- store it separately too if needed
+        }));
+
+        setConversations(conversationData);
+      } catch (error) {
+        console.error("Error fetching conversations", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchConversations();
+  }, []);
+
+  // Fetch messages when a conversation is selected
+  useEffect(() => {
+    if (selectedConversation) {
+      const fetchMessages = async () => {
+        try {
+          const response = await axios.get(`${getApiBaseUrl()}/api/messages/${selectedConversation.id}`);
+          console.log("Fetched messages:", response.data);
+          const messages = response.data.map((message: any) => ({
+            id: message.id,
+            sender: message.sender_id === selectedConversation.id ? "therapist" : "me",
+            content: message.text,
+            timestamp: new Date(message.created_at).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+            status: "read", // Adjust based on your status logic
+          }));
+  
+          // Update the conversation's messages
+          setSelectedConversation((prevConversation) => ({
+            ...prevConversation!,
+            messages,
+          }));
+        } catch (error) {
+          console.error("Error fetching messages", error);
+        }
+      };
+  
+      fetchMessages();
+  
+      // Listen for new messages on the selected conversation's channel
+      const channel = echo.channel(`conversation.${selectedConversation.id}`);
+      channel.listen("MessageSent", (event:any) => {
+        const newMessage = {
+          id: event.message.id,
+          sender: event.message.sender_id === selectedConversation.id ? "therapist" : "me",
+          content: event.message.text,
+          timestamp: new Date(event.message.created_at).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+          status: "sent",
+        };
+  
+        // Append new message to the current conversation's messages
+        setSelectedConversation((prevConversation:any) => {
+          // Only append if the conversation is selected, else it's ignored
+          if (prevConversation && prevConversation.id === selectedConversation.id) {
+            return {
+              ...prevConversation,
+              messages: [...prevConversation.messages, newMessage],
+            };
+          }
+          return prevConversation!;
+        });
+      });
+  
+      // Clean up the Echo listener on component unmount
+      return () => {
+        echo.leaveChannel(`conversation.${selectedConversation.id}`);
+      };
+    }
+  }, [selectedConversation?.id]); // Only run when the conversation ID changes
+  
+ // Handle sending new message
+ const handleSendMessage = async () => {
+  if (newMessage.trim() && selectedConversation) {
+    const messageData = {
+      message: newMessage,
+    };
+    try {
+      const response = await axios.post(`${getApiBaseUrl()}/api/messages/${selectedConversation.id}`, messageData);
+      const newMessageObj: Message = {
+        id: response.data.id,
+        sender: "me",
+        content: response.data.text,
+        timestamp: new Date(response.data.created_at).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+        status: "sent",
+      };
+
+      // Add the newly sent message to the conversation
+      setSelectedConversation((prevConversation) => ({
+        ...prevConversation!,
+        messages: [...prevConversation!.messages, newMessageObj],
+      }));
+      setNewMessage("");
+    } catch (error) {
+      console.error("Error sending message", error);
+    }
+  }
+};
+  console.log("incomin", selectedConversation)
 
   return (
     <>
-      <PageMeta
-        title="Chat | Dashboard"
-        description="Chat with your therapists"
-      />
+      <PageMeta title="Chat | Dashboard" description="Chat with your therapists" />
       <PageBreadcrumb pageTitle="Chat" />
 
       <div className="flex h-[calc(100vh-200px)] rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
@@ -127,46 +175,61 @@ export default function Chat() {
               <input
                 type="text"
                 placeholder="Search conversations..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2 pl-10 pr-4 text-sm focus:border-primary-500 focus:outline-none dark:border-gray-800 dark:bg-gray-800 dark:text-white"
               />
             </div>
           </div>
           <div className="h-[calc(100%-4rem)] overflow-y-auto">
-            {sampleConversations.map((conversation) => (
-              <div
-                key={conversation.id}
-                onClick={() => setSelectedConversation(conversation)}
-                className={`flex cursor-pointer items-center gap-4 border-b border-gray-200 p-4 transition-colors hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800 ${
-                  selectedConversation?.id === conversation.id
-                    ? "bg-primary-50 dark:bg-primary-900/20"
-                    : ""
-                }`}
-              >
-                <img
-                  src={conversation.therapistImage}
-                  alt={conversation.therapistName}
-                  className="size-12 rounded-full object-cover"
-                />
-                <div className="flex-1">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-medium text-gray-900 dark:text-white">
-                      {conversation.therapistName}
-                    </h3>
-                    <span className="text-xs text-gray-500 dark:text-gray-400">
-                      {conversation.timestamp}
-                    </span>
+          {loading ? (
+            <div className="flex justify-center items-center">Loading...</div>
+          ) : (
+            conversations
+              .filter((conversation) =>
+                conversation.therapistName.toLowerCase().includes(searchTerm.toLowerCase())
+              )
+              .map((conversation) => (
+                <div
+                  key={conversation.id}
+                  onClick={() => setSelectedConversation(conversation)}
+                  className={`flex cursor-pointer items-center gap-4 border-b border-gray-200 p-4 transition-colors hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800 ${
+                    selectedConversation?.id === conversation.id
+                      ? "bg-primary-50 dark:bg-primary-900/20"
+                      : ""
+                  }`}
+                >
+                  {/* <img
+                    // src={conversation.therapistImage}
+                    src="/images/user/user-15.jpg"
+                    alt={conversation.therapistName}
+                    className="size-12 rounded-full object-cover"
+                  /> */}
+                  <div className="w-12 aspect-square rounded-full overflow-hidden bg-primary-600 flex items-center justify-center text-black text-lg font-semibold border border-black">
+                  {conversation.therapistName?.charAt(0).toUpperCase()}
                   </div>
-                  <p className="mt-1 truncate text-sm text-gray-500 dark:text-gray-400">
-                    {conversation.lastMessage}
-                  </p>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-medium text-gray-900 dark:text-white">{conversation.therapistName}</h3>
+                      <span
+                        className={`text-xs font-medium ${
+                          conversation.isOnline ? "text-green-500" : "text-gray-400"
+                        }`}
+                      >
+                        {conversation.isOnline ? "Online" : "Offline"}
+                      </span></div>
+                    <p className="mt-1 truncate text-sm text-gray-500 dark:text-gray-400">
+                      {conversation.lastMessage}
+                    </p>
+                  </div>
+                  {conversation.unreadCount > 0 && (
+                    <span className="flex size-5 items-center justify-center rounded-full bg-primary-600 text-xs font-medium text-white">
+                      {conversation.unreadCount}
+                    </span>
+                  )}
                 </div>
-                {conversation.unreadCount > 0 && (
-                  <span className="flex size-5 items-center justify-center rounded-full bg-primary-600 text-xs font-medium text-white">
-                    {conversation.unreadCount}
-                  </span>
-                )}
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
 
@@ -177,18 +240,18 @@ export default function Chat() {
               {/* Chat Header */}
               <div className="flex h-16 items-center justify-between border-b border-gray-200 px-4 dark:border-gray-800">
                 <div className="flex items-center gap-3">
-                  <img
-                    src={selectedConversation.therapistImage}
+                  {/* <img
+                    // src={selectedConversation.therapistImage}
+                    src="/images/user/user-15.jpg"
                     alt={selectedConversation.therapistName}
                     className="size-10 rounded-full object-cover"
-                  />
+                  /> */}
+                  <div className="w-12 aspect-square rounded-full overflow-hidden bg-primary-600 flex items-center justify-center text-black text-lg font-semibold border border-black">
+                    {selectedConversation.therapistName?.charAt(0).toUpperCase()}
+                  </div>
                   <div>
-                    <h3 className="font-medium text-gray-900 dark:text-white">
-                      {selectedConversation.therapistName}
-                    </h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      Online
-                    </p>
+                    <h3 className="font-medium text-gray-900 dark:text-white">{selectedConversation.therapistName}</h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Online</p>
                   </div>
                 </div>
                 <button className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800">
@@ -209,15 +272,13 @@ export default function Chat() {
                       <div
                         className={`max-w-[70%] rounded-lg px-4 py-2 ${
                           message.sender === "me"
-                            ? "bg-primary-600 text-white"
-                            : "bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-white"
+                            ? "bg-primary-600 text-black"
+                            : "bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-black"
                         }`}
                       >
                         <p className="text-sm">{message.content}</p>
                         <div className="mt-1 flex items-center justify-end gap-1">
-                          <span className="text-xs opacity-70">
-                            {message.timestamp}
-                          </span>
+                          <span className="text-xs opacity-70">{message.timestamp}</span>
                           {message.sender === "me" && (
                             <span className="text-xs opacity-70">
                               {message.status === "read" ? "✓✓" : "✓"}
@@ -255,18 +316,11 @@ export default function Chat() {
             </>
           ) : (
             <div className="flex h-full items-center justify-center">
-              <div className="text-center">
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                  Select a conversation
-                </h3>
-                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                  Choose a therapist to start chatting
-                </p>
-              </div>
+              <div className="text-gray-500 dark:text-gray-400">Select a conversation to start chatting.</div>
             </div>
           )}
         </div>
       </div>
     </>
   );
-} 
+}

@@ -6,12 +6,16 @@ import "flatpickr/dist/flatpickr.css";
 import App from "./App.tsx";
 import { AppWrapper } from "./components/common/PageMeta.tsx";
 import { ThemeProvider } from "./context/ThemeContext.tsx";
+import { AuthProvider } from "./context/AuthContext.tsx";
+import './utils/axios'; // ✅ Import this once
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ThemeProvider>
       <AppWrapper>
-        <App />
+        <AuthProvider>
+          <App />
+        </AuthProvider>
       </AppWrapper>
     </ThemeProvider>
   </StrictMode>,

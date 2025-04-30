@@ -5,6 +5,7 @@ import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import Checkbox from "../form/input/Checkbox";
 import Button from "../ui/button/Button";
+import axios from "axios";
 
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -12,14 +13,48 @@ export default function SignInForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Here you would typically validate credentials and make an API call
-    // For now, we'll just redirect to dashboard
-    navigate("/dashboard");
+  const getApiBaseUrl = () => {
+    // Access the variable using import.meta.env
+    return import.meta.env.VITE_API_URL || "http://localhost:8000";
   };
-
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+  
+    try {
+      // Step 1: Get CSRF cookie
+      await axios.get(`${getApiBaseUrl()}/sanctum/csrf-cookie`, {
+        withCredentials: true,
+      });
+  
+      // Step 2: Send login credentials
+      await axios.post(
+        `${getApiBaseUrl()}/api/login`,
+        {
+          email,
+          password,
+        },
+        {
+          withCredentials: true,
+        }
+      );
+  
+      // Step 3: Fetch user
+      const { data: user } = await axios.get(`${getApiBaseUrl()}/api/user`, {
+        withCredentials: true,
+      });
+  
+      // Step 4: Save to localStorage or context
+      localStorage.setItem("user", JSON.stringify(user));
+  
+      // Step 5: Redirect
+      navigate("/dashboard");
+    } catch (error: any) {
+      console.error("Login failed:", error?.response || error.message);
+      alert("Login failed. Please check your credentials.");
+    }
+  };
+  
+  
   return (
     <div className="flex flex-col flex-1">
       <div className="w-full max-w-md pt-10 mx-auto">
@@ -155,7 +190,7 @@ export default function SignInForm() {
               <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
                 Don&apos;t have an account? {""}
                 <Link
-                  to="/signup"
+                  to="/make-payment"
                   className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
                 >
                   Sign Up

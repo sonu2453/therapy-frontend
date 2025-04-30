@@ -28,6 +28,9 @@ import PaymentHistory from "./pages/Dashboard/Subscriptions/PaymentHistory";
 import RefundRequests from "./pages/Dashboard/Subscriptions/RefundRequests";
 import MatchMe from "./pages/Dashboard/MatchMe";
 import Chat from "./pages/Dashboard/Chat";
+import SupportPage from "./pages/Dashboard/Support";
+import SubscriptionPage from "./pages/Public/SubscriptionPage";
+import SuccessPage from "./pages/Public/SuccessPage";
 
 export default function App() {
   return (
@@ -39,6 +42,8 @@ export default function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
+          <Route path="/make-payment" element={<SubscriptionPage />} />
+          <Route path="/success" element={<SuccessPage />} /> {/* Success Page */}
 
           {/* Dashboard Layout - All admin routes under /dashboard */}
           <Route path="/dashboard" element={<AppLayout />}>
@@ -48,6 +53,8 @@ export default function App() {
             <Route path="profile" element={<UserProfiles />} />
             <Route path="users" element={<Users />} />
             <Route path="therapists" element={<Therapists />} />
+            <Route path="support-staff" element={<SupportPage />} />
+
             <Route path="match-me" element={<MatchMe />} />
             <Route path="chat" element={<Chat />} />
             <Route path="calendar" element={<Calendar />} />

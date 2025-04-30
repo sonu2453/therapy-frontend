@@ -10,35 +10,29 @@ interface Invoice {
   receipt_url: string | null;
 }
 
+const getApiBaseUrl = () => {
+  // Access the variable using import.meta.env
+  return import.meta.env.VITE_API_URL || "http://localhost:8000";
+};
+
 const PaymentHistory: React.FC = () => {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const getApiBaseUrl = () => {
-    // Access the variable using import.meta.env
-    return import.meta.env.VITE_API_URL || "http://localhost:8000";
-  };
+  const apiBaseUrl = getApiBaseUrl();
+
   useEffect(() => {
-    // const getCsrfToken = async () => {
-    //   // Use relative path or configured base URL for CSRF cookie endpoint
-    //   await axios.get(`${apiBaseUrl}/sanctum/csrf-cookie`, {
-    //     withCredentials: true, // Ensure cookies are sent
-    //   });
-    //   console.log("CSRF token fetched successfully (or cookie set)");
-    // };
     const fetchPaymentHistory = async () => {
       setLoading(true);
       setError(null);
       try {
-        // await getCsrfToken();
-        const response = await axios.get(`${getApiBaseUrl()}/api/payment-history`, {
+        const response = await axios.get<Invoice[]>(`${apiBaseUrl}/api/payment-history`, {
           withCredentials: true, // Ensure authentication cookie is sent
           headers: {
             'Accept': 'application/json',
           },
         });
-        console.log(response.data, "response.data");
         setInvoices(response.data);
       } catch (err: any) {
         console.error("Error fetching payment history:", err);
@@ -49,7 +43,7 @@ const PaymentHistory: React.FC = () => {
     };
 
     fetchPaymentHistory();
-  }, []);
+  }, [apiBaseUrl]);
 
   return (
     <div className="container mx-auto px-4 py-8">
